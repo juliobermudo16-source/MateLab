@@ -45,8 +45,12 @@ class ClockAndAngleTest {
 
     @Test
     fun `imantar el giro a multiplos`() {
+        // Con paso 15 se busca el multiplo de 15 mas cercano.
         assertEquals(45.0, AngleEngine.snap(43.0, 15), 0.0001)
-        assertEquals(90.0, AngleEngine.snap(87.4, 1), 0.0001)
+        assertEquals(90.0, AngleEngine.snap(87.4, 15), 0.0001)
+        // Con paso 1 (o menor) solo se redondea al grado entero.
+        assertEquals(87.0, AngleEngine.snap(87.4, 1), 0.0001)
+        assertEquals(88.0, AngleEngine.snap(87.6, 1), 0.0001)
     }
 
     @Test
