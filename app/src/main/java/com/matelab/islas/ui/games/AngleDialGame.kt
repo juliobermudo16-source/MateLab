@@ -3,6 +3,7 @@ package com.matelab.islas.ui.games
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -164,7 +165,8 @@ fun AngleDialGame(
                 GhostButton(
                     text = if (delta > 0) "+$delta" else "$delta",
                     onClick = {
-                        angle = AngleEngine.normalize(angle + delta).toFloat()
+                        // El motor trabaja en Double: se convierte en el borde.
+                        angle = AngleEngine.normalize((angle + delta).toDouble()).toFloat()
                         feedback.tap()
                     },
                     modifier = Modifier.weight(1f)
@@ -193,7 +195,7 @@ fun AngleDialGame(
                             .background(if (selected) Teal else Teal.copy(alpha = 0.12f))
                             .pointerInput(enabled, kind) {
                                 if (!enabled) return@pointerInput
-                                androidx.compose.foundation.gestures.detectTapGestures {
+                                detectTapGestures {
                                     classification = kind
                                     feedback.tap()
                                 }
