@@ -8,177 +8,40 @@ Fecha del informe: **2026-08-24**
 
 ## 1. Resultado
 
-> ## COMPILACIÓN NO VERIFICADA EN LOCAL
+> ## ✅ COMPILACIÓN CORRECTA
 >
-> El APK **no se ha compilado** en la máquina donde se desarrolló el proyecto.
-> Ninguna cifra de este informe está simulada: lo que no se pudo ejecutar
-> aparece marcado como no ejecutado.
+> Verificada en GitHub Actions. Todos los datos de este informe proceden de
+> una ejecución real; ninguno está simulado.
 
-| Tarea | Estado | Dónde se ejecuta |
-|---|---|---|
-| `./gradlew clean` | **NO EJECUTADO** | GitHub Actions |
-| `./gradlew testDebugUnitTest` | **NO EJECUTADO** | GitHub Actions |
-| `./gradlew lintDebug` | **NO EJECUTADO** | GitHub Actions |
-| `./gradlew assembleDebug` | **NO EJECUTADO** | GitHub Actions |
-| `./gradlew assembleRelease` | **NO EJECUTADO** | GitHub Actions |
-
----
-
-## 2. Por qué
-
-El entorno de desarrollo no reunía los requisitos mínimos para compilar una
-aplicación Android. Comprobado el 2026-08-24:
-
-```
-$ java -version
-java version "25.0.1" 2025-10-21 LTS
-Java(TM) SE Runtime Environment (build 25.0.1+8-LTS-27)
-
-$ gradle -v
-bash: gradle: command not found
-
-$ echo "$ANDROID_HOME / $ANDROID_SDK_ROOT"
- /
-```
-
-Tres bloqueos, cada uno suficiente por sí solo:
-
-1. **JDK 25.** El Android Gradle Plugin 8.5.2 requiere **JDK 17**. JDK 25 no
-   está soportado y falla al arrancar el daemon.
-2. **Gradle no instalado**, y el repositorio no versiona
-   `gradle-wrapper.jar`, así que tampoco había forma de arrancar el wrapper.
-3. **Sin SDK de Android.** `ANDROID_HOME` y `ANDROID_SDK_ROOT` están vacíos y no
-   hay ninguna plataforma instalada, así que no existe `android.jar` contra el
-   que compilar.
-
-Instalar el SDK habría requerido descargas de red que quedan fuera de lo
-acordado para este trabajo. La compilación se delega, por tanto, al workflow de
-integración continua, que sí dispone de un entorno completo.
-
----
-
-## 3. Qué SÍ se ejecutó y verificó
-
-Todo lo que sigue se ejecutó de verdad en la máquina de desarrollo, con la
-salida real reproducida a continuación.
-
-### 3.1 Verificación de imports internos
-
-```
-$ python tools/check_imports.py
-Ficheros Kotlin analizados: 96
-Simbolos declarados: 1519
-
-Todos los imports internos resuelven correctamente.
-```
-
-Comprueba que cada `import com.matelab.islas.*` apunta a un símbolo declarado
-en el paquete indicado. Es el error más probable al escribir mucho código
-seguido y el compilador lo rechazaría.
-
-### 3.2 Verificación estructural
-
-```
-$ python tools/check_structure.py
-Ficheros Kotlin equilibrados: 96
-Referencias a recursos comprobadas: 17
-GameKind: 12 valores / Payloads: 12
-
-Sin problemas estructurales.
-```
-
-Cubre tres cosas: ningún fichero tiene llaves o paréntesis descuadrados (lo que
-delataría un fichero truncado), todo `R.drawable/raw/string/color/xml` y todo
-`@recurso/nombre` referenciado existe realmente en `res/`, y los 12 payloads de
-mini-juego tienen rama en el despachador `ChallengeGame` y etiqueta en
-`activityLabel`.
-
-### 3.3 Verificación del contenido educativo
-
-```
-$ python tools/check_content.py
-Misiones: 19
-Retos: 95
-Retos de eleccion: 19 (20 %)
-
-Contenido dentro de los limites.
-```
-
-Reproduce fuera de Kotlin los límites que verifica `CatalogIntegrityTest`:
-longitud de enunciados, explicaciones y pistas, ausencia de textos vacíos, ids
-sin duplicar y proporción de retos de elección por debajo del 50 %.
-
-### 3.4 Generación de recursos de audio
-
-```
-$ python tools/gen_sounds.py
-Generando efectos de sonido de MateLab en app\src\main\res\raw
-  sfx_tap.wav               1.9 KB
-  sfx_correct.wav          10.5 KB
-  sfx_wrong.wav            12.1 KB
-  sfx_star.wav             15.1 KB
-  sfx_unlock.wav           25.4 KB
-  sfx_level.wav            32.7 KB
-Listo.
-```
-
-Seis ficheros WAV PCM de 16 bits a 22 050 Hz, generados con la biblioteca
-estándar de Python. No se descargó ningún recurso.
-
-### 3.5 Generación y validación de los PDF
-
-```
-$ python tools/md2pdf.py
-Generando PDF de MateLab
-  MEMORIA_DESCRIPTIVA.pdf                   7 paginas    35.9 KB
-  MANUAL_USUARIO.pdf                        5 paginas    26.4 KB
-  MANUAL_TECNICO.pdf                        7 paginas    32.9 KB
-Listo.
-
-$ python tools/check_pdf.py
-OK     docs/pdf/MANUAL_TECNICO.pdf                  7 paginas
-OK     docs/pdf/MANUAL_USUARIO.pdf                  5 paginas
-OK     docs/pdf/MEMORIA_DESCRIPTIVA.pdf             7 paginas
-```
-
-`check_pdf.py` valida la cabecera, que `startxref` apunte realmente a la tabla
-`xref`, que cada desplazamiento caiga sobre su objeto y que el catálogo y las
-páginas estén enlazados. Además, los tres PDF se abrieron en un visor y se
-revisaron visualmente: portada, tipografía, tablas, listas y acentos.
-
-### 3.6 Empaquetado
-
-```
-$ python tools/package.py
-Ficheros dentro del ZIP: 144
-Estructura del ZIP correcta (raiz directa, sin anidamiento).
-```
-
----
-
-## 4. Inventario del proyecto
-
-Recuentos reales, obtenidos con `find` y `grep` sobre el árbol de fuentes:
-
-| Métrica | Valor |
+| Dato | Valor |
 |---|---|
-| Ficheros Kotlin de producción | 86 |
-| Ficheros Kotlin de prueba | 10 |
-| Líneas de Kotlin | 15 839 |
-| Recursos XML | 13 |
-| Efectos de sonido (WAV) | 6 |
-| Pruebas unitarias (`@Test`) | **171** |
-| Islas | 4 |
-| Misiones | 19 |
-| Retos | 95 |
-| Tipos de mini-juego | 12 |
-| Insignias | 13 |
-| Cristales coleccionables | 27 |
-| Tablas de base de datos | 13 |
+| Ejecución | [`32790617392`](https://github.com/juliobermudo16-source/MateLab/actions/runs/32790617392) |
+| Commit | `d72aaa6bd908b3d12c06705b17bd20ec388556eb` |
+| Fecha (UTC) | 2026-08-24 23:49:08 |
+| Duración | 5 min 58 s |
+| Entorno | `ubuntu-latest`, JDK 17 (Temurin), Gradle 8.9, Android SDK 34 |
 
-### Pruebas por clase
+### Tareas
 
-| Clase | `@Test` |
+| Tarea | Resultado |
+|---|---|
+| `gradle wrapper` | ✅ correcto |
+| `./gradlew clean` | ✅ correcto |
+| `./gradlew testDebugUnitTest` | ✅ **171 pruebas, 0 fallos** |
+| `./gradlew lintDebug` | ✅ correcto |
+| `./gradlew assembleDebug` | ✅ correcto |
+| `./gradlew assembleRelease` | ✅ correcto |
+
+### Pruebas
+
+```
+Total: 171  |  Fallidas: 0  |  Errores: 0  |  Omitidas: 0  |  APROBADAS: 171
+```
+
+Recuento extraído de los ficheros `TEST-*.xml` del artefacto
+`MateLab-informes` de esa misma ejecución.
+
+| Clase | Pruebas |
 |---|---|
 | `GridEnginesTest` | 31 |
 | `CatalogIntegrityTest` | 22 |
@@ -192,14 +55,178 @@ Recuentos reales, obtenidos con `find` y `grep` sobre el árbol de fuentes:
 | `AliasSanitizerTest` | 5 |
 | **Total** | **171** |
 
-**Pruebas aprobadas: sin determinar. Pruebas fallidas: sin determinar.**
-Se sabrá al ejecutar `testDebugUnitTest` en GitHub Actions.
+### Lint
+
+Sin errores. Los avisos emitidos son informativos y no bloquean la
+compilación:
+
+- Node.js 20 está en desuso en los runners (afecta a las acciones, no al código).
+- Hay versiones más nuevas de `androidx.core:core-ktx` (1.19.0) y
+  `androidx.lifecycle:lifecycle-runtime-compose` (2.11.0). Se mantienen las
+  versiones fijadas a propósito: el proyecto no usa versiones dinámicas.
 
 ---
 
-## 5. SHA-256 de los entregables generados
+## 2. APK generados
 
-Calculados el 2026-08-24 sobre los ficheros reales de `deliverables/`:
+| Fichero | Tamaño | SHA-256 |
+|---|---|---|
+| `MateLab-v1.0.0-debug.apk` | 17 498 465 B (17 MB) | `5bbdcb533d5833f1a76dd9187e95fff077bda193d9208a0be39264feab6713b1` |
+| `MateLab-v1.0.0-release.apk` | 1 544 436 B (1,5 MB) | `8d265a6c6db14826c99ea2b2620cf3c2facda45c9bb1987e6cd612c3e0572cf4` |
+
+La versión de producción ocupa **11 veces menos** gracias a R8 y a
+`shrinkResources`.
+
+### Verificación de los binarios
+
+Descargados y comprobados localmente:
+
+| Comprobación | debug | release |
+|---|---|---|
+| Cabecera ZIP (`50 4B 03 04`) | ✅ | ✅ |
+| `AndroidManifest.xml` | ✅ | ✅ |
+| `classes.dex` | ✅ | ✅ |
+| Firma APK v2/v3 (`APK Sig Block 42`) | ✅ | ✅ |
+| Entradas en el archivo | 185 | 95 |
+| SHA-256 coincide con el informe de CI | ✅ | ✅ |
+
+> Los dos APK van firmados con la clave de depuración, suficiente para
+> instalarlos directamente. Para publicar en Google Play hay que firmar con un
+> keystore propio (ver `MANUAL_TECNICO.md`, apartado 2.3).
+
+Ambos están disponibles en el artefacto **`MateLab-APK-v1.0.0`** de la
+ejecución, y descargados en `deliverables/`.
+
+---
+
+## 3. Historial: cómo se llegó hasta aquí
+
+El proyecto **no se pudo compilar en la máquina de desarrollo**. Comprobado el
+2026-08-24:
+
+```
+$ java -version
+java version "25.0.1" 2025-10-21 LTS
+
+$ gradle -v
+bash: gradle: command not found
+
+$ echo "$ANDROID_HOME / $ANDROID_SDK_ROOT"
+ /
+```
+
+Tres bloqueos: JDK 25 (AGP 8.5.2 exige JDK 17), Gradle ausente y sin SDK de
+Android. Por eso la compilación se delegó en integración continua, y por eso
+hicieron falta tres intentos.
+
+### Intento 1 — `32789065862` · ❌ falló
+
+`testDebugUnitTest` no compiló. **8 errores de Kotlin**, con 4 causas raíz:
+
+| Causa | Ficheros |
+|---|---|
+| Faltaba `import androidx.compose.runtime.getValue`, sin el cual `val x by animateFloat(...)` no funciona como delegado (generó 3 errores en cascada) | `Kubo.kt`, `Backdrop.kt` |
+| `detectTapGestures` llamada con nombre completamente cualificado; Kotlin no lo admite en extensiones con receptor implícito | `AngleDialGame.kt`, `ShapeSortGame.kt` |
+| `AngleEngine.normalize` recibía un `Float` y solo tiene sobrecargas `Double` e `Int` | `AngleDialGame.kt` |
+
+Corregido en `9c0f231`. Se añadió `tools/check_delegates.py` para detectar
+esos dos patrones sin compilador.
+
+### Intento 2 — `32790227869` · ❌ falló
+
+El código de la aplicación ya **compilaba** y **lint pasaba**. De 171 pruebas,
+170 en verde y 1 en rojo:
+
+```
+ClockAndAngleTest > imantar el giro a multiplos FAILED
+    java.lang.AssertionError at ClockAndAngleTest.kt:49
+```
+
+El fallo estaba **en la prueba, no en el motor**: esperaba que
+`snap(87.4, paso = 1)` devolviese `90.0`, cuando con paso 1 la función redondea
+al grado entero y lo correcto es `87.0` (la expectativa correspondía a un paso
+de 15). Corregido en `d72aaa6`, separando ambos comportamientos en cuatro
+asertos.
+
+### Intento 3 — `32790617392` · ✅ correcto
+
+Los seis pasos en verde y los dos APK publicados.
+
+---
+
+## 4. Verificaciones ejecutadas en local
+
+Además de la compilación en CI, en la máquina de desarrollo se ejecutaron
+cuatro comprobaciones estáticas escritas para este proyecto, sin dependencias:
+
+```
+$ python tools/check_imports.py
+Ficheros Kotlin analizados: 96
+Simbolos declarados: 1519
+Todos los imports internos resuelven correctamente.
+
+$ python tools/check_structure.py
+Ficheros Kotlin equilibrados: 96
+Referencias a recursos comprobadas: 17
+GameKind: 12 valores / Payloads: 12
+Sin problemas estructurales.
+
+$ python tools/check_content.py
+Misiones: 19
+Retos: 95
+Retos de eleccion: 19 (20 %)
+Contenido dentro de los limites.
+
+$ python tools/check_delegates.py
+Ficheros Kotlin analizados: 96
+Sin delegados ni extensiones mal resueltos.
+```
+
+`check_delegates.py` nació precisamente del intento 1: codifica los dos errores
+que el compilador encontró para que no vuelvan a colarse.
+
+### Recursos generados
+
+```
+$ python tools/gen_sounds.py
+  sfx_tap.wav               1.9 KB
+  sfx_correct.wav          10.5 KB
+  sfx_wrong.wav            12.1 KB
+  sfx_star.wav             15.1 KB
+  sfx_unlock.wav           25.4 KB
+  sfx_level.wav            32.7 KB
+
+$ python tools/md2pdf.py
+  MEMORIA_DESCRIPTIVA.pdf                   7 paginas    35.9 KB
+  MANUAL_USUARIO.pdf                        5 paginas    26.4 KB
+  MANUAL_TECNICO.pdf                        7 paginas    32.9 KB
+
+$ python tools/check_pdf.py
+OK     docs/pdf/MANUAL_TECNICO.pdf                  7 paginas
+OK     docs/pdf/MANUAL_USUARIO.pdf                  5 paginas
+OK     docs/pdf/MEMORIA_DESCRIPTIVA.pdf             7 paginas
+```
+
+---
+
+## 5. Inventario del proyecto
+
+| Métrica | Valor |
+|---|---|
+| Ficheros Kotlin de producción | 86 |
+| Ficheros Kotlin de prueba | 10 |
+| Líneas de Kotlin | 15 839 |
+| Recursos XML | 13 |
+| Efectos de sonido (WAV) | 6 |
+| Pruebas unitarias | 171 (todas en verde) |
+| Islas / misiones / retos | 4 / 19 / 95 |
+| Tipos de mini-juego | 12 |
+| Insignias / cristales | 13 / 27 |
+| Tablas de base de datos | 13 |
+
+---
+
+## 6. SHA-256 de los demás entregables
 
 | Fichero | Tamaño | SHA-256 |
 |---|---|---|
@@ -207,63 +234,33 @@ Calculados el 2026-08-24 sobre los ficheros reales de `deliverables/`:
 | `MANUAL_USUARIO.pdf` | 27 010 B | `b6144b3aae93099bff02633d661f5530b78cd182953455de7d4ff5ab866587db` |
 | `MANUAL_TECNICO.pdf` | 33 667 B | `56eb152879a58ea9f3c0767b66a224359a7baa90719914cf0dc1bf83ec7c341a` |
 
-La huella de `MateLab-v1.0.0-source.zip` **no se reproduce aquí a propósito**:
-este documento viaja dentro del propio ZIP, así que anotarla lo dejaría
-desactualizado en cuanto se regenerase. Está en `deliverables/SHA256SUMS.txt`,
-que `tools/package.py` escribe después de crear el paquete.
-
-**SHA-256 del APK: no disponible.** Lo calculará el workflow y quedará en
-`deliverables/BUILD_RESULT.md` dentro del artefacto de la ejecución.
+La huella del ZIP de fuentes está en `deliverables/SHA256SUMS.txt` y no se
+reproduce aquí porque este documento viaja dentro del propio ZIP.
 
 ---
 
-## 6. Cómo obtener el informe real
+## 7. Reproducir la compilación
 
-1. Sube el proyecto a GitHub y haz push a `main`.
-2. Abre la pestaña **Actions** → *Compilar APK de MateLab*.
-3. El resumen de la ejecución muestra los SHA-256 y el tamaño de los APK.
-4. Descarga los artefactos:
-   - `MateLab-APK-v1.0.0`: los dos APK y `BUILD_RESULT.md`.
-   - `MateLab-informes`: informe HTML de pruebas y de lint.
-5. Sustituye las secciones 1 y 4 de este documento con los resultados reales.
-
-### Qué esperar
-
-- **Pruebas**: 171 casos, todos de JVM pura, sin emulador. Las de
-  `CatalogIntegrityTest` fallarían si algún reto del catálogo estuviera mal
-  configurado; se han verificado previamente con `tools/check_content.py`.
-- **Lint**: configurado con `abortOnError = false`, así que no detiene la
-  compilación. Es previsible que señale avisos de recursos no usados y de
-  APIs de Compose marcadas como experimentales.
-- **Riesgo principal**: al no haber pasado nunca por el compilador de Kotlin,
-  pueden aparecer errores de tipos o de firmas de Compose que las
-  comprobaciones estáticas no detectan. Si ocurre, el log de Actions indica
-  fichero y línea exactos.
-
----
-
-## 7. Reproducir la compilación en local
+En cualquier máquina con **JDK 17** y **SDK de Android 34**:
 
 ```bash
-# 1. JDK 17 (imprescindible; con JDK 25 falla)
-java -version   # debe decir 17.x
-
-# 2. SDK de Android con la plataforma 34
-export ANDROID_HOME=/ruta/al/sdk
-
-# 3. Generar el wrapper la primera vez
 gradle wrapper --gradle-version 8.9 --distribution-type bin
-
-# 4. Compilar
-./gradlew clean testDebugUnitTest lintDebug assembleDebug
 ```
+
+```bash
+./gradlew clean testDebugUnitTest lintDebug assembleDebug assembleRelease
+```
+
+O simplemente haciendo push a `main`: el workflow lo repite entero y publica
+los APK como artefacto.
 
 ---
 
 ## 8. Declaración de honestidad
 
-Este informe cumple el punto 37 de la especificación. No se ha declarado
-ninguna compilación correcta sin evidencia, no se ha inventado ningún número de
-pruebas aprobadas y no se ha simulado ninguna salida de consola. Los bloques de
-código de la sección 3 son transcripciones literales de ejecuciones reales; los
-de la sección 1 están marcados como no ejecutados.
+Este informe cumple el punto 37 de la especificación. Los resultados de la
+sección 1 proceden de la ejecución `32790617392` de GitHub Actions; los SHA-256
+de la sección 2 se recalcularon sobre los APK ya descargados y coinciden con
+los que emitió el runner; los bloques de consola de la sección 4 son
+transcripciones literales. Los dos intentos fallidos quedan documentados en la
+sección 3 en lugar de ocultarse.
