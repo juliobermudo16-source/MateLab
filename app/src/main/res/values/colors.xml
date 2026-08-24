@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta base de MateLab (ver ui/theme/Color.kt para la paleta completa) -->
+    <color name="matelab_deep">#0B3B4A</color>
+    <color name="matelab_teal">#12B3A6</color>
+    <color name="matelab_mango">#FF8A3D</color>
+    <color name="matelab_violet">#7C5CFF</color>
+    <color name="matelab_sun">#FFC846</color>
+    <color name="matelab_sand">#FFF6E9</color>
+    <color name="matelab_white">#FFFFFF</color>
+</resources>

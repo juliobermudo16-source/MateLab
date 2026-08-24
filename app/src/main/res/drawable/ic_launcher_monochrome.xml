@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Version monocroma de Kubo para iconos temáticos (Android 13+) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:tint="#000000">
+
+    <path
+        android:pathData="M52,28h4v14h-4z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M54,24 L58.5,31 L54,38 L49.5,31 Z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M27,55h7v10h-7z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M74,55h7v10h-7z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M44,41 H64 Q75,41 75,52 V68 Q75,79 64,79 H44 Q33,79 33,68 V52 Q33,41 44,41 Z"
+        android:fillColor="#FFFFFF" />
+</vector>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kubo, el robot explorador de MateLab (capa frontal del icono adaptativo) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Antena -->
+    <path
+        android:pathData="M52,28h4v14h-4z"
+        android:fillColor="#0B3B4A" />
+    <path
+        android:pathData="M54,24 L58.5,31 L54,38 L49.5,31 Z"
+        android:fillColor="#FFC846" />
+
+    <!-- Orejas laterales -->
+    <path
+        android:pathData="M27,55h7v10h-7z"
+        android:fillColor="#FF8A3D" />
+    <path
+        android:pathData="M74,55h7v10h-7z"
+        android:fillColor="#FF8A3D" />
+
+    <!-- Cabeza -->
+    <path
+        android:pathData="M44,41 H64 Q75,41 75,52 V68 Q75,79 64,79 H44 Q33,79 33,68 V52 Q33,41 44,41 Z"
+        android:fillColor="#FFF6E9"
+        android:strokeColor="#0B3B4A"
+        android:strokeWidth="3" />
+
+    <!-- Visor -->
+    <path
+        android:pathData="M43,50 H65 Q70,50 70,55 V64 Q70,69 65,69 H43 Q38,69 38,64 V55 Q38,50 43,50 Z"
+        android:fillColor="#0B3B4A" />
+
+    <!-- Ojos -->
+    <path
+        android:pathData="M48,59.5 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 z"
+        android:fillColor="#12B3A6" />
+    <path
+        android:pathData="M60,59.5 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 z"
+        android:fillColor="#12B3A6" />
+    <path
+        android:pathData="M49.5,58 m-1.4,0 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0 z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M61.5,58 m-1.4,0 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0 z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Sonrisa -->
+    <path
+        android:pathData="M48,73 Q54,77.5 60,73"
+        android:strokeColor="#0B3B4A"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+</vector>

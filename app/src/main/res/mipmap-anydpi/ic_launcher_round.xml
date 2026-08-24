@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icono redondo de respaldo para Android 7.0-7.1 (API 24-25) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:pathData="M54,54 m-50,0 a50,50 0 1,0 100,0 a50,50 0 1,0 -100,0 z"
+        android:fillColor="#0B3B4A" />
+    <path
+        android:pathData="M8,76 C26,66 40,88 60,80 C76,74 88,88 100,80 C92,96 74,104 54,104 C33,104 15,92 8,76 Z"
+        android:fillColor="#12B3A6" />
+
+    <path
+        android:pathData="M52,28h4v14h-4z"
+        android:fillColor="#FFF6E9" />
+    <path
+        android:pathData="M54,24 L58.5,31 L54,38 L49.5,31 Z"
+        android:fillColor="#FFC846" />
+    <path
+        android:pathData="M28,55h6v10h-6z"
+        android:fillColor="#FF8A3D" />
+    <path
+        android:pathData="M74,55h6v10h-6z"
+        android:fillColor="#FF8A3D" />
+    <path
+        android:pathData="M44,41 H64 Q75,41 75,52 V68 Q75,79 64,79 H44 Q33,79 33,68 V52 Q33,41 44,41 Z"
+        android:fillColor="#FFF6E9" />
+    <path
+        android:pathData="M43,50 H65 Q70,50 70,55 V64 Q70,69 65,69 H43 Q38,69 38,64 V55 Q38,50 43,50 Z"
+        android:fillColor="#0B3B4A" />
+    <path
+        android:pathData="M48,59.5 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 z"
+        android:fillColor="#12B3A6" />
+    <path
+        android:pathData="M60,59.5 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 z"
+        android:fillColor="#12B3A6" />
+</vector>

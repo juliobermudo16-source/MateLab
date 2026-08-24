@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icono de la pantalla de inicio (splash): Kubo saludando -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+
+    <!-- Halo -->
+    <path
+        android:pathData="M120,120 m-78,0 a78,78 0 1,0 156,0 a78,78 0 1,0 -156,0 z"
+        android:fillColor="#12B3A6"
+        android:fillAlpha="0.18" />
+
+    <!-- Antena -->
+    <path
+        android:pathData="M116,60h8v26h-8z"
+        android:fillColor="#FFF6E9" />
+    <path
+        android:pathData="M120,44 L131,60 L120,76 L109,60 Z"
+        android:fillColor="#FFC846" />
+
+    <!-- Orejas -->
+    <path
+        android:pathData="M56,116h14v22h-14z"
+        android:fillColor="#FF8A3D" />
+    <path
+        android:pathData="M170,116h14v22h-14z"
+        android:fillColor="#FF8A3D" />
+
+    <!-- Cabeza -->
+    <path
+        android:pathData="M92,84 H148 Q182,84 182,118 V152 Q182,186 148,186 H92 Q58,186 58,152 V118 Q58,84 92,84 Z"
+        android:fillColor="#FFF6E9" />
+
+    <!-- Visor -->
+    <path
+        android:pathData="M88,106 H152 Q166,106 166,120 V142 Q166,156 152,156 H88 Q74,156 74,142 V120 Q74,106 88,106 Z"
+        android:fillColor="#0B3B4A" />
+
+    <!-- Ojos -->
+    <path
+        android:pathData="M104,131 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 z"
+        android:fillColor="#12B3A6" />
+    <path
+        android:pathData="M136,131 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 z"
+        android:fillColor="#12B3A6" />
+    <path
+        android:pathData="M108,126 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M140,126 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Sonrisa -->
+    <path
+        android:pathData="M104,168 Q120,180 136,168"
+        android:strokeColor="#0B3B4A"
+        android:strokeWidth="7"
+        android:strokeLineCap="round" />
+</vector>

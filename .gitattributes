@@ -1,0 +1,17 @@
+# Normaliza los finales de linea: el repositorio guarda siempre LF.
+# Sin esto, un gradlew con CRLF hace fallar el runner de Linux con
+# "bad interpreter: /bin/sh^M".
+* text=auto eol=lf
+
+# Scripts de Windows: deben conservar CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binarios: que git no los toque.
+*.wav binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.zip binary
+*.jar binary
+*.apk binary
