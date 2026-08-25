@@ -31,12 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.matelab.islas.domain.engine.ShapeSortEngine
 import com.matelab.islas.domain.model.BucketSpec
 import com.matelab.islas.domain.model.ShapeSortPayload
@@ -62,7 +65,6 @@ fun ShapeSortGame(
 ) {
     val feedback = rememberUiFeedback()
     val placement = remember { mutableStateMapOf<String, String>() }
-    var rootCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val bucketCoords = remember { mutableStateMapOf<String, LayoutCoordinates>() }
 
     val pending = payload.shapes.filter { it.id !in placement }
@@ -70,7 +72,6 @@ fun ShapeSortGame(
     Box(
         modifier
             .fillMaxWidth()
-            .onGloballyPositioned { rootCoords = it }
     ) {
         Column(Modifier.fillMaxWidth()) {
 
@@ -83,6 +84,7 @@ fun ShapeSortGame(
                     BucketBox(
                         bucket = bucket,
                         shapes = payload.shapes.filter { placement[it.id] == bucket.id },
+                        allShapes = payload.shapes,
                         modifier = Modifier
                             .weight(1f)
                             .onGloballyPositioned { bucketCoords[bucket.id] = it },
@@ -108,34 +110,38 @@ fun ShapeSortGame(
             Spacer(Modifier.height(8.dp))
 
             // ------------------------------------------------------ bandeja
+            // Sin clip a proposito: con el, la figura arrastrada desaparecia
+            // en cuanto salia de la bandeja. background(color, shape) pinta
+            // las esquinas redondeadas sin recortar a los hijos.
             Box(
                 Modifier
                     .fillMaxWidth()
                     .heightIn(min = 150.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MateTheme.colors.cardAlt)
+                    .background(MateTheme.colors.cardAlt, RoundedCornerShape(20.dp))
                     .padding(10.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     pending.chunked(3).forEach { row ->
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            row.forEachIndexed { index, shape ->
+                            row.forEach { shape ->
                                 DraggableShape(
                                     shape = shape,
-                                    color = ShapePalette[(payload.shapes.indexOf(shape) + index) % ShapePalette.size],
+                                    color = shapeColor(shape, payload.shapes),
                                     enabled = enabled,
-                                    onDropped = { coords ->
-                                        val root = rootCoords
-                                        if (root != null) {
-                                            val center = root.localBoundingBoxOf(coords).center
-                                            val target = payload.buckets.firstOrNull { bucket ->
-                                                val bc = bucketCoords[bucket.id] ?: return@firstOrNull false
-                                                root.localBoundingBoxOf(bc).contains(center)
-                                            }
-                                            if (target != null) {
-                                                placement[shape.id] = target.id
-                                                feedback.tap()
-                                            }
+                                    onDropped = { fingerInWindow ->
+                                        // Se compara el dedo con las cajas usando
+                                        // coordenadas de ventana, que no se recortan.
+                                        val target = payload.buckets.firstOrNull { bucket ->
+                                            val bc = bucketCoords[bucket.id]
+                                                ?: return@firstOrNull false
+                                            bc.boundsInWindow().contains(fingerInWindow)
+                                        }
+                                        if (target != null) {
+                                            placement[shape.id] = target.id
+                                            feedback.tap()
+                                        } else {
+                                            // Fuera de toda caja: la figura vuelve sola.
+                                            feedback.wrong()
                                         }
                                     }
                                 )
@@ -165,6 +171,7 @@ fun ShapeSortGame(
 private fun BucketBox(
     bucket: BucketSpec,
     shapes: List<ShapeSpec>,
+    allShapes: List<ShapeSpec>,
     modifier: Modifier = Modifier,
     onRemove: (String) -> Unit
 ) {
@@ -190,7 +197,7 @@ private fun BucketBox(
                     Box(Modifier.size(40.dp)) {
                         GeoShape(
                             spec = shape,
-                            color = ShapePalette[shape.sides % ShapePalette.size],
+                            color = shapeColor(shape, allShapes),
                             size = 40.dp,
                             modifier = Modifier.clickableNoRipple { onRemove(shape.id) }
                         )
@@ -202,20 +209,31 @@ private fun BucketBox(
     }
 }
 
+/**
+ * Figura arrastrable.
+ *
+ * Informa de la posicion del DEDO en coordenadas de ventana, no del recuadro
+ * de la figura. Medir el recuadro fallaba: al salir de la bandeja quedaba
+ * recortado, su rectangulo se volvia vacio y el centro caia en (0,0), que
+ * esta dentro de la primera caja. Resultado: todo iba a parar a la caja 1.
+ */
 @Composable
 private fun DraggableShape(
     shape: ShapeSpec,
-    color: androidx.compose.ui.graphics.Color,
+    color: Color,
     enabled: Boolean,
-    onDropped: (LayoutCoordinates) -> Unit
+    onDropped: (Offset) -> Unit
 ) {
     var drag by remember { mutableStateOf(Offset.Zero) }
     var dragging by remember { mutableStateOf(false) }
     var coords by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    val scale by animateFloatAsState(if (dragging) 1.15f else 1f, tween(120), label = "drag")
+    // Punto donde esta el dedo, en coordenadas de ventana.
+    var fingerInWindow by remember { mutableStateOf(Offset.Zero) }
+    val scale by animateFloatAsState(if (dragging) 1.2f else 1f, tween(120), label = "drag")
 
     Box(
         Modifier
+            .zIndex(if (dragging) 1f else 0f)
             .offset { IntOffset(drag.x.roundToInt(), drag.y.roundToInt()) }
             .scale(scale)
             .size(56.dp)
@@ -223,10 +241,13 @@ private fun DraggableShape(
             .pointerInput(enabled, shape.id) {
                 if (!enabled) return@pointerInput
                 detectDragGestures(
-                    onDragStart = { dragging = true },
+                    onDragStart = { start ->
+                        dragging = true
+                        coords?.let { fingerInWindow = it.localToWindow(start) }
+                    },
                     onDragEnd = {
                         dragging = false
-                        coords?.let(onDropped)
+                        onDropped(fingerInWindow)
                         drag = Offset.Zero
                     },
                     onDragCancel = {
@@ -236,12 +257,24 @@ private fun DraggableShape(
                 ) { change, amount ->
                     change.consume()
                     drag += amount
+                    // El dedo se mueve con el gesto, no con el recuadro.
+                    fingerInWindow += amount
                 }
             },
         contentAlignment = Alignment.Center
     ) {
         GeoShape(spec = shape, color = color, size = 52.dp)
     }
+}
+
+/**
+ * Color fijo de cada figura, calculado por su posicion en el reto.
+ * Antes la bandeja y la caja usaban formulas distintas y la figura cambiaba
+ * de color al soltarla, lo que despistaba.
+ */
+private fun shapeColor(shape: ShapeSpec, allShapes: List<ShapeSpec>): Color {
+    val index = allShapes.indexOfFirst { it.id == shape.id }.coerceAtLeast(0)
+    return ShapePalette[index % ShapePalette.size]
 }
 
 /** Click sin efecto de onda, para elementos ilustrados. */
