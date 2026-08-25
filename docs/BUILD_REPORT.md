@@ -152,6 +152,37 @@ asertos.
 
 Los seis pasos en verde y los dos APK publicados.
 
+### Intento 4 — `32792170654` · ✅ correcto · commit `faa5738`
+
+Compilación posterior con la corrección del clasificador de figuras, que se
+detectó **probando la app en un móvil real**, no en CI.
+
+En la misión *El faro de los polígonos* ninguna figura llegaba a la caja de
+"4 lados": todas acababan en la de "3 lados". Como esa misión es requisito de
+otras dos, dejaba media isla bloqueada. Eran dos fallos encadenados:
+
+1. La bandeja tenía `clip(RoundedCornerShape)`, así que la figura arrastrada
+   se recortaba y desaparecía al salir de ella.
+2. La caja de destino se decidía con `localBoundingBoxOf`, que recorta por
+   defecto. Con la figura recortada, el rectángulo salía vacío y su centro
+   era `(0,0)` — un punto que cae dentro de la primera caja.
+
+Se sustituyó por la posición del dedo en coordenadas de ventana
+(`localToWindow` + desplazamiento del gesto) contrastada con
+`boundsInWindow()` de cada caja, que no se recorta.
+
+**Lección**: 171 pruebas y cuatro verificadores estáticos no detectan un
+error de coordenadas táctiles. Hace falta probar con el dedo.
+
+| APK de esta compilación | SHA-256 |
+|---|---|
+| `MateLab-v1.0.0-debug.apk` | `121aee8ccefe8ad70b42199e0f95b8c7e6ba7b96fdcd95f45dcec17d3e6a31c7` |
+| `MateLab-v1.0.0-release.apk` | `b101e0fdd55b24887a38d936896205e6984e81a3c4403048fe9ef25be0e59b3f` |
+
+> Las huellas del apartado 2 corresponden al intento 3. Cada compilación
+> genera binarios nuevos, así que la referencia válida en cada momento es el
+> `BUILD_RESULT.md` que acompaña a su propio artefacto o Release.
+
 ---
 
 ## 4. Verificaciones ejecutadas en local
